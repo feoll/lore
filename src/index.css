@@ -1,0 +1,105 @@
+@import "tailwindcss";
+
+html,
+body,
+#root {
+  min-height: 100%;
+}
+
+body {
+  background: #fff9f2;
+}
+
+html.dark body {
+  background: #1b1b1b;
+}
+
+body.theme-switching,
+body.theme-switching * {
+  transition: none !important;
+  animation: none !important;
+}
+
+.tiptap-editor p.is-editor-empty:first-child::before {
+  content: attr(data-placeholder);
+  color: #9ca3af;
+  float: left;
+  height: 0;
+  pointer-events: none;
+}
+
+.tiptap-editor {
+  line-height: 1.5;
+}
+
+.tiptap-editor ul,
+.tiptap-editor ol,
+.rich-content ul,
+.rich-content ol {
+  margin: 0.35rem 0 0.35rem 1.1rem;
+}
+
+.tiptap-editor ul,
+.rich-content ul {
+  list-style: disc;
+}
+
+.tiptap-editor ol,
+.rich-content ol {
+  list-style: decimal;
+}
+
+.tiptap-editor h1,
+.rich-content h1 {
+  font-size: 1.2rem;
+  font-weight: 700;
+  margin: 0.35rem 0;
+}
+
+.tiptap-editor h2,
+.rich-content h2 {
+  font-size: 1.1rem;
+  font-weight: 700;
+  margin: 0.35rem 0;
+}
+
+.tiptap-editor h3,
+.rich-content h3 {
+  font-weight: 700;
+  margin: 0.35rem 0;
+}
+
+.tiptap-editor p,
+.rich-content p {
+  margin: 0.25rem 0;
+}
+
+.rich-content p:empty::before,
+.tiptap-editor p:empty::before {
+  content: "\00a0";
+}
+
+.tiptap-editor blockquote,
+.rich-content blockquote {
+  border-left: 3px solid #ff7a01;
+  margin: 0.4rem 0;
+  padding-left: 0.65rem;
+  opacity: 0.9;
+}
+
+.tiptap-editor pre,
+.rich-content pre {
+  background: #1f1f1f;
+  border-radius: 0.4rem;
+  color: #f8f8f2;
+  font-size: 0.8rem;
+  margin: 0.4rem 0;
+  overflow-x: auto;
+  padding: 0.5rem 0.6rem;
+}
+
+.tiptap-editor a,
+.rich-content a {
+  color: #ff7a01;
+  text-decoration: underline;
+}
