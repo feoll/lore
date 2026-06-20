@@ -80,6 +80,7 @@ const ASSETS_DB_NAME = "knowledge-assets-db";
 const ASSETS_STORE_NAME = "assets";
 const main_app = (import.meta.env.VITE_MAIN_APP as string | undefined) ?? "";
 const APP_VIEW_HINT = (import.meta.env.VITE_VIEW_HINT as string | undefined) ?? "";
+const LOGO_SRC = `${import.meta.env.BASE_URL}sosedi-logo.png`;
 
 type AssetRecord = {
   id: string;
@@ -1677,7 +1678,7 @@ export default function App() {
           <div>
             <p className={`text-xs uppercase tracking-[0.18em] ${isDark ? "text-[#FFD7B3]" : "text-[#B35A00]"}`}>База знаний</p>
             <button type="button" onClick={handleLogoClick} className="cursor-pointer">
-              <img src="/sosedi-logo.png" alt="СОСЕДИ" className="h-8 w-auto" />
+              <img src={LOGO_SRC} alt="СОСЕДИ" className="h-8 w-auto" />
             </button>
           </div>
 
