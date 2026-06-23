@@ -1193,21 +1193,38 @@ export default function App() {
       .sort((a, b) => b.score - a.score);
   }, [notes, searchQuery]);
 
-  const groupedResults = useMemo(() => {
-    const grouped = new Map<string, SearchResult[]>();
-    for (const result of searchResults) {
-      const list = grouped.get(result.note.section) ?? [];
-      list.push(result);
-      grouped.set(result.note.section, list);
-    }
-    return Array.from(grouped.entries()).sort((a, b) => {
+const groupedResults = useMemo(() => {
+  const grouped = new Map<string, SearchResult[]>();
+  for (const result of searchResults) {
+    const list = grouped.get(result.note.section) ?? [];
+    list.push(result);
+    grouped.set(result.note.section, list);
+  }
+
+  const entries = Array.from(grouped.entries());
+  if (searchQuery.trim()) {
+    return entries.sort((a, b) => {
+      const bestA = Math.max(...a[1].map((item) => item.score));
+      const bestB = Math.max(...b[1].map((item) => item.score));
+      if (bestA !== bestB) return bestB - bestA;
+
+      // If scores are equal, fallback to manual section order.
       const aIndex = sections.indexOf(a[0]);
       const bIndex = sections.indexOf(b[0]);
       const safeA = aIndex === -1 ? Number.MAX_SAFE_INTEGER : aIndex;
       const safeB = bIndex === -1 ? Number.MAX_SAFE_INTEGER : bIndex;
       return safeA - safeB;
     });
-  }, [searchResults, sections]);
+  }
+
+  return entries.sort((a, b) => {
+    const aIndex = sections.indexOf(a[0]);
+    const bIndex = sections.indexOf(b[0]);
+    const safeA = aIndex === -1 ? Number.MAX_SAFE_INTEGER : aIndex;
+    const safeB = bIndex === -1 ? Number.MAX_SAFE_INTEGER : bIndex;
+    return safeA - safeB;
+  });
+}, [searchQuery, searchResults, sections]);
 
   const autoExpandedSections = useMemo(() => {
     if (!searchQuery.trim()) return new Set<string>();
