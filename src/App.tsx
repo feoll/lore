@@ -1,5 +1,5 @@
 import { AnimatePresence, motion } from "framer-motion";
-import { ChangeEvent, FormEvent, ReactNode, useEffect, useLayoutEffect, useMemo, useRef, useState } from "react";
+import { ChangeEvent, ClipboardEvent as ReactClipboardEvent, FormEvent, ReactNode, useEffect, useLayoutEffect, useMemo, useRef, useState } from "react";
 import { flushSync } from "react-dom";
 import { Extension } from "@tiptap/core";
 import { Color } from "@tiptap/extension-color";
@@ -1357,6 +1357,65 @@ const groupedResults = useMemo(() => {
     }
   }
 
+  async function appendImagesFromFiles(
+  files: File[],
+  field: "problemImages" | "solutionImages"
+): Promise<void> {
+  const images = files.filter((file) => file.type.startsWith("image/"));
+  if (!images.length) return;
+
+  try {
+    const prepared = await Promise.all(
+      images.map(async (file) => {
+        const assetId = crypto.randomUUID();
+        const dataUrl = await toDataUrl(file);
+
+        await putAsset({
+          id: assetId,
+          name: file.name,
+          type: file.type,
+          size: file.size,
+          dataUrl,
+        });
+
+        return {
+          id: crypto.randomUUID(),
+          name: file.name,
+          type: file.type,
+          assetId,
+          dataUrl,
+        };
+      })
+    );
+
+    setDraft((previous) => ({ ...previous, [field]: [...previous[field], ...prepared] }));
+  } catch {
+    pushToast("Ошибка при загрузке изображений.", "error");
+  }
+}
+
+async function handlePasteImages(
+  event: ReactClipboardEvent<HTMLDivElement>,
+  field: "problemImages" | "solutionImages"
+): Promise<void> {
+  const files = Array.from(event.clipboardData.items)
+    .filter((item) => item.type.startsWith("image/"))
+    .map((item) => item.getAsFile())
+    .filter((file): file is File => file !== null);
+
+  if (!files.length) return;
+
+  event.preventDefault();
+  await appendImagesFromFiles(files, field);
+  pushToast(
+    field === "problemImages"
+      ? "Изображение вставлено в Фото проблемы"
+      : "Изображение вставлено в Фото решения",
+    "success",
+    1700
+  );
+}
+  
   function removeDraftImage(field: "problemImages" | "solutionImages", imageId: string): void {
     setDraft((previous) => ({ ...previous, [field]: previous[field].filter((image) => image.id !== imageId) }));
   }
@@ -2090,17 +2149,39 @@ const groupedResults = useMemo(() => {
 
                 <div className="space-y-2">
                   <label className="text-sm font-medium">Фото проблемы (можно несколько)</label>
-                  <input
-                    type="file"
-                    accept="image/*"
-                    multiple
-                    onChange={(event) => handleAddImages(event, "problemImages")}
-                    className={`${
-                      isDark
-                        ? "border-[#9A5A26] bg-[#2B2B2B] file:bg-[#5A3416] file:text-[#FFF7EE]"
-                        : "border-[#FFBF87] bg-[#FFFAF5] file:bg-[#FFE7CF] file:text-[#2A2A2A]"
-                    } w-full rounded-xl border px-3 py-2 text-sm file:mr-3 file:rounded-lg file:border-0 file:px-2 file:py-1`}
-                  />
+                
+                  <div className="grid grid-cols-1 gap-2 sm:grid-cols-2">
+                    <label
+                      className={`flex cursor-pointer items-center justify-center rounded-xl border px-3 py-2 text-xs font-medium transition ${
+                        isDark
+                          ? "border-[#9A5A26] bg-[#2B2B2B] text-[#FFD9B7] hover:bg-[#3A2D2D]"
+                          : "border-[#FFBF87] bg-[#FFFAF5] text-[#A3530A] hover:bg-[#FFF2E6]"
+                      }`}
+                    >
+                      Выбрать из файлов
+                      <input
+                        type="file"
+                        accept="image/*"
+                        multiple
+                        onChange={(event) => handleAddImages(event, "problemImages")}
+                        className="hidden"
+                      />
+                    </label>
+                
+                    <div
+                      tabIndex={0}
+                      role="button"
+                      onPaste={(event) => void handlePasteImages(event, "problemImages")}
+                      className={`flex items-center justify-center rounded-xl border border-dashed px-3 py-2 text-center text-xs font-medium outline-none transition ${
+                        isDark
+                          ? "border-[#9A5A26] bg-[#2A2A2A] text-[#FFD9B7] hover:bg-[#3A2D2D] focus:ring-2 focus:ring-[#FF9C45]"
+                          : "border-[#FFBF87] bg-[#FFF6EE] text-[#A3530A] hover:bg-[#FFF2E6] focus:ring-2 focus:ring-[#FF7A01]"
+                      }`}
+                    >
+                      Нажмите сюда и вставьте Ctrl+V
+                    </div>
+                  </div>
+                
                   {draft.problemImages.length > 0 && (
                     <div className="grid grid-cols-3 gap-2">
                       {draft.problemImages.map((image) => (
@@ -2132,16 +2213,18 @@ const groupedResults = useMemo(() => {
 
                 <div className="space-y-2">
                   <label className="text-sm font-medium">Файлы к заметке</label>
-                  <input
-                    type="file"
-                    multiple
-                    onChange={handleAddFiles}
-                    className={`${
+                
+                  <label
+                    className={`flex cursor-pointer items-center justify-center rounded-xl border px-3 py-2 text-xs font-medium transition ${
                       isDark
-                        ? "border-[#9A5A26] bg-[#2B2B2B] file:bg-[#5A3416] file:text-[#FFF7EE]"
-                        : "border-[#FFBF87] bg-[#FFFAF5] file:bg-[#FFE7CF] file:text-[#2A2A2A]"
-                    } w-full rounded-xl border px-3 py-2 text-sm file:mr-3 file:rounded-lg file:border-0 file:px-2 file:py-1`}
-                  />
+                        ? "border-[#9A5A26] bg-[#2B2B2B] text-[#FFD9B7] hover:bg-[#3A2D2D]"
+                        : "border-[#FFBF87] bg-[#FFFAF5] text-[#A3530A] hover:bg-[#FFF2E6]"
+                    }`}
+                  >
+                    Выбрать файл
+                    <input type="file" multiple onChange={handleAddFiles} className="hidden" />
+                  </label>
+                
                   {draft.files.length > 0 && (
                     <div className="space-y-1.5">
                       {draft.files.map((file) => (
@@ -2167,36 +2250,58 @@ const groupedResults = useMemo(() => {
                   )}
                 </div>
 
-                <div className="space-y-2">
-                  <label className="text-sm font-medium">Фото решения (можно несколько)</label>
-                  <input
-                    type="file"
-                    accept="image/*"
-                    multiple
-                    onChange={(event) => handleAddImages(event, "solutionImages")}
-                    className={`${
-                      isDark
-                        ? "border-[#9A5A26] bg-[#2B2B2B] file:bg-[#5A3416] file:text-[#FFF7EE]"
-                        : "border-[#FFBF87] bg-[#FFFAF5] file:bg-[#FFE7CF] file:text-[#2A2A2A]"
-                    } w-full rounded-xl border px-3 py-2 text-sm file:mr-3 file:rounded-lg file:border-0 file:px-2 file:py-1`}
-                  />
-                  {draft.solutionImages.length > 0 && (
-                    <div className="grid grid-cols-3 gap-2">
-                      {draft.solutionImages.map((image) => (
-                        <div key={image.id} className="relative overflow-hidden rounded-lg">
-                          <img src={image.dataUrl} alt={image.name} className="h-20 w-full object-cover" />
-                          <button
-                            type="button"
-                            onClick={() => removeDraftImage("solutionImages", image.id)}
-                            className="absolute right-1 top-1 rounded bg-black/75 px-1.5 py-0.5 text-xs text-white"
-                          >
-                            x
-                          </button>
-                        </div>
-                      ))}
+                  <div className="space-y-2">
+                    <label className="text-sm font-medium">Фото решения (можно несколько)</label>
+                  
+                    <div className="grid grid-cols-1 gap-2 sm:grid-cols-2">
+                      <label
+                        className={`flex cursor-pointer items-center justify-center rounded-xl border px-3 py-2 text-xs font-medium transition ${
+                          isDark
+                            ? "border-[#9A5A26] bg-[#2B2B2B] text-[#FFD9B7] hover:bg-[#3A2D2D]"
+                            : "border-[#FFBF87] bg-[#FFFAF5] text-[#A3530A] hover:bg-[#FFF2E6]"
+                        }`}
+                      >
+                        Выбрать из файлов
+                        <input
+                          type="file"
+                          accept="image/*"
+                          multiple
+                          onChange={(event) => handleAddImages(event, "solutionImages")}
+                          className="hidden"
+                        />
+                      </label>
+                  
+                      <div
+                        tabIndex={0}
+                        role="button"
+                        onPaste={(event) => void handlePasteImages(event, "solutionImages")}
+                        className={`flex items-center justify-center rounded-xl border border-dashed px-3 py-2 text-center text-xs font-medium outline-none transition ${
+                          isDark
+                            ? "border-[#9A5A26] bg-[#2A2A2A] text-[#FFD9B7] hover:bg-[#3A2D2D] focus:ring-2 focus:ring-[#FF9C45]"
+                            : "border-[#FFBF87] bg-[#FFF6EE] text-[#A3530A] hover:bg-[#FFF2E6] focus:ring-2 focus:ring-[#FF7A01]"
+                        }`}
+                      >
+                        Нажмите сюда и вставьте Ctrl+V
+                      </div>
                     </div>
-                  )}
-                </div>
+                  
+                    {draft.solutionImages.length > 0 && (
+                      <div className="grid grid-cols-3 gap-2">
+                        {draft.solutionImages.map((image) => (
+                          <div key={image.id} className="relative overflow-hidden rounded-lg">
+                            <img src={image.dataUrl} alt={image.name} className="h-20 w-full object-cover" />
+                            <button
+                              type="button"
+                              onClick={() => removeDraftImage("solutionImages", image.id)}
+                              className="absolute right-1 top-1 rounded bg-black/75 px-1.5 py-0.5 text-xs text-white"
+                            >
+                              x
+                            </button>
+                          </div>
+                        ))}
+                      </div>
+                    )}
+                  </div>
 
                 <button
                   type="submit"
