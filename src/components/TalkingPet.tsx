@@ -1,7 +1,7 @@
 import { useMemo, useState } from "react";
 import { AnimatePresence, motion } from "framer-motion";
 
-const emptySecretPhrase = "Нет реплик: добавь VITE_VIEW_HINT2.";
+const emptySecretPhrase = "";
 
 function parsePhrasesFromSecret(rawValue: string | undefined): string[] {
   if (!rawValue) return [];
@@ -12,9 +12,7 @@ function parsePhrasesFromSecret(rawValue: string | undefined): string[] {
       const normalized = parsed.map((item) => String(item).trim()).filter(Boolean);
       return normalized;
     }
-  } catch {
-    // Fall back to text parsing.
-  }
+  } catch {}
 
   const normalized = rawValue
     .split(/\|\||\n/)
@@ -61,7 +59,7 @@ export function TalkingPet() {
   );
   const [speech, setSpeech] = useState(emptySecretPhrase);
   const [speechKey, setSpeechKey] = useState(0);
-  const [isBubbleVisible, setIsBubbleVisible] = useState(true);
+  const [isBubbleVisible, setIsBubbleVisible] = useState(false);
 
   const nextPhrase = () => {
     if (phrases.length === 0) {
@@ -106,7 +104,7 @@ export function TalkingPet() {
             >
               x
             </button>
-            <span className="mb-1 block text-[10px] font-medium tracking-wide text-orange-500">Кубик Вася</span>
+            <span className="mb-1 block text-[10px] font-medium tracking-wide text-orange-500">Кубик Саша</span>
             <AnimatePresence mode="wait">
               <motion.p
                 key={speechKey}
