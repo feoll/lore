@@ -11,6 +11,7 @@ import { TextStyle } from "@tiptap/extension-text-style";
 import Underline from "@tiptap/extension-underline";
 import StarterKit from "@tiptap/starter-kit";
 import { EditorContent, useEditor } from "@tiptap/react";
+import { TalkingPet } from "./components/TalkingPet";
 
 type Theme = "light" | "dark";
 
@@ -2447,7 +2448,7 @@ async function handlePasteImages(
           />
         )}
       </AnimatePresence>
-
+      <TalkingPet />
     </div>
   );
 }
