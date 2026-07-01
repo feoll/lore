@@ -104,7 +104,7 @@ export function TalkingPet() {
             >
               x
             </button>
-            <span className="mb-1 block text-[10px] font-medium tracking-wide text-orange-500">Кубик Саша</span>
+            <span className="mb-1 block text-[10px] font-medium tracking-wide text-orange-500">Кубик</span>
             <AnimatePresence mode="wait">
               <motion.p
                 key={speechKey}
