@@ -80,7 +80,7 @@ export function TalkingPet() {
         <motion.button
           onClick={nextPhrase}
           whileTap={{ scale: 0.94 }}
-          className="flex h-16 w-16 items-center justify-center rounded-[1.4rem] border-2 border-orange-300 bg-[#fff7ef] shadow-xl shadow-orange-200/70"
+          className="flex h-16 w-16 items-center justify-center rounded-[1.4rem] border-2 border-orange-300 bg-[#fff7ef] shadow-md shadow-orange-900/20"
           aria-label="Поговорить с кубиком"
         >
           <PetFace />
@@ -95,7 +95,7 @@ export function TalkingPet() {
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: -6 }}
             transition={{ duration: 0.2 }}
-            className="absolute right-0 bottom-20 w-56 rounded-2xl border border-orange-100 bg-white/95 p-3 pr-8 text-sm leading-snug text-slate-700 shadow-xl shadow-orange-200/40 backdrop-blur"
+            className="absolute right-0 bottom-20 w-56 rounded-2xl border border-orange-100 bg-white/95 p-3 pr-8 text-sm leading-snug text-slate-700 shadow-md shadow-orange-900/15 backdrop-blur"
           >
             <button
               onClick={() => setIsBubbleVisible(false)}
