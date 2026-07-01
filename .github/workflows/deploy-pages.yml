@@ -35,6 +35,7 @@ jobs:
         env:
           VITE_MAIN_APP: ${{ secrets.MAIN_APP }}
           VITE_VIEW_HINT: ${{ secrets.VIEW_HINT }}
+          VITE_VIEW_HINT2: ${{ secrets.VIEW_HINT2 }}
 
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3
