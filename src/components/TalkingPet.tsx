@@ -83,7 +83,7 @@ export function TalkingPet() {
           onClick={nextPhrase}
           whileTap={{ scale: 0.94 }}
           className="flex h-16 w-16 items-center justify-center rounded-[1.4rem] border-2 border-orange-300 bg-[#fff7ef] shadow-xl shadow-orange-200/70"
-          aria-label="Поговорить с питомцем"
+          aria-label="Поговорить с кубиком"
         >
           <PetFace />
         </motion.button>
@@ -106,7 +106,7 @@ export function TalkingPet() {
             >
               x
             </button>
-            <span className="mb-1 block text-[10px] font-medium tracking-wide text-orange-500">Питомец</span>
+            <span className="mb-1 block text-[10px] font-medium tracking-wide text-orange-500">Кубик Вася</span>
             <AnimatePresence mode="wait">
               <motion.p
                 key={speechKey}
