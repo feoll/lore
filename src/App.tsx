@@ -2448,7 +2448,6 @@ async function handlePasteImages(
           />
         )}
       </AnimatePresence>
-      <TalkingPet />
     </div>
   );
 }
